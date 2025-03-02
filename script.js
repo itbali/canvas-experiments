@@ -41,19 +41,19 @@ document.addEventListener('wheel', function(event) {
 });
 
 class Particle {
-    constructor() {
-        this.x = mouse.x;
-        this.y = mouse.y;
+    constructor(x = mouse.x,y = mouse.y) {
+        this.x = x;
+        this.y = y;
         this.size = Math.random() * 5 + 1;
         this.speedX = Math.random() * 3 - 1.5;
         this.speedY = Math.random() * 3 - 1.5;
-        this.color = `hsl(${hue}, 100%, 50%)`;
+        this.color = hue;
     }
 
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
-
+        
         if(this.size > 0.2) this.size -= 0.1;
     }
 
@@ -98,15 +98,14 @@ function showTotalEaten() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Verdana';
     ctx.fillText(`Eaten: ${totalEaten}; Lost: ${totalLost}`, 10, 50);
-    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-    ctx.fillText(`Scroll to change color`, 10, 80);
     ctx.fillStyle = 'white';
-    ctx.fillText(`Click to create particles`, 10, 110);
+    ctx.fillText(`Click to create firework`, 10, 70);
 }
 
-function handleApple() {
+function handleApple() {    
     if(!apple) {
         apple = new Apple();
+        hue = apple.color;
     }
     if(apple?.isEaten()) {
         totalEaten++;
@@ -114,8 +113,9 @@ function handleApple() {
     }
 
     if(apple?.size <= 0.3) {
-        apple = undefined;
+        apple.explode();
         totalLost++;
+        apple = undefined
     }
 
     apple?.update();
@@ -159,6 +159,14 @@ class Apple {
 
     isEaten() {
         return mouse.x >= this.x - this.size && mouse.x <= this.x + this.size && mouse.y >= this.y - this.size && mouse.y <= this.y + this.size;
+    }
+
+    explode() {
+        if(this.size <= 0.3) {
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(this.x, this.y));
+            }
+        }
     }
 }
 
